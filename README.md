@@ -1,5 +1,7 @@
 # System Design Studio
 
+**Live demo:** https://system-design-studio-five.vercel.app/
+
 Interactive system design learning: guided lessons with animated
 architecture simulations, practice quizzes, a visual Design Lab,
 cheatsheets, case studies and a capacity calculator.
@@ -20,7 +22,7 @@ pnpm build      # production build
 pnpm start      # serve the production build
 pnpm lint       # ESLint
 pnpm test       # Vitest unit tests
-pnpm typecheck  # tsc --noEmit (add to package.json scripts if missing)
+pnpm typecheck  # tsc --noEmit
 ```
 
 Requires Node 20+ and pnpm.

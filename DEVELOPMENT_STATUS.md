@@ -60,8 +60,8 @@ from memory.
 - [ ] Phase 11 — full test suite incl. Playwright e2e (Vitest unit
       tests exist; browser verification was manual scripts, not a
       committed e2e suite).
-- [ ] Phase 12 — GitHub repo, Vercel deployment (repo DONE 2026-11-27;
-      deploy BLOCKED — see "Deployment status" below).
+- [x] Phase 12 — GitHub repo + Vercel deployment (LIVE 2026-11-27:
+      https://system-design-studio-five.vercel.app/).
 
 ## Test status (verified 2026-11-27, after final rebuild)
 
@@ -140,15 +140,15 @@ from memory.
   83b1372 17 desktop screenshots, 75babf1 14 mobile screenshots).
   Verified via API: 123 tree entries, favicon + 17 + 14 screenshots
   present, upload SHAs match.
-- Vercel deploy: **BLOCKED, not deployed yet.** The Vercel GitHub App
-  installation only covers 3 repos (careercraft, inboxora, syncboard);
-  system-design-studio is not in its list, so the import fails with
-  "To link a GitHub repository, you need to install the GitHub
-  integration first." Granting access needs GitHub sudo-mode
-  verification (emailed code). First code expired before entry; a
-  fresh code was requested but not yet received. Two routes: the user
-  sends the fresh code promptly, or grants access himself in the
-  GitHub app (Settings → Applications → Vercel → Configure).
+- Vercel deploy: **LIVE 2026-11-27** — https://system-design-studio-five.vercel.app/
+  (status Ready, deployed in 33s; "system-design-studio.vercel.app" was
+  taken, so Vercel assigned "-five"). Parent-verified live: 12 routes
+  return 200 (/, /learn, /learn/l2, /learn/l5, /practice, /practice/quiz,
+  /design-lab, /calculator, /cheatsheets, /case-studies,
+  /case-studies/url-shortener, /search). The Vercel GitHub App
+  installation only covers selected repos — system-design-studio was
+  added to it (6 repos now) via GitHub sudo-mode code + Vercel identity
+  code, both supplied by the user.
 - Soft-404 fix attempt: adding a styled `app/not-found.tsx` did NOT
   change the status (unknown ids still return HTTP 200 on all three
   routes, though the custom page renders). File reverted; bug remains
