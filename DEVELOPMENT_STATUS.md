@@ -60,7 +60,8 @@ from memory.
 - [ ] Phase 11 — full test suite incl. Playwright e2e (Vitest unit
       tests exist; browser verification was manual scripts, not a
       committed e2e suite).
-- [ ] Phase 12 — GitHub repo, Vercel deployment (needs user's yes).
+- [ ] Phase 12 — GitHub repo, Vercel deployment (repo DONE 2026-11-27;
+      deploy BLOCKED — see "Deployment status" below).
 
 ## Test status (verified 2026-11-27, after final rebuild)
 
@@ -129,3 +130,28 @@ from memory.
   lint fix, merged-chapters fix (finished lessons were wrongly
   labelled "Coming soon" in sidebars), SVG `height="auto"` console
   error fix, diagram sublabel overflow fix.
+
+## Deployment status (2026-11-27 evening)
+
+- GitHub repo: **DONE** — https://github.com/MuhammadAhmad67889/system-design-studio
+  (public). All 97 project files on main in 7 commits: initial README
+  (browser), 3 connector pushes (27fdec3, 57cb7da, 33c9198 — 65 text
+  files), 3 browser uploads for binary files (60ca378 favicon.ico,
+  83b1372 17 desktop screenshots, 75babf1 14 mobile screenshots).
+  Verified via API: 123 tree entries, favicon + 17 + 14 screenshots
+  present, upload SHAs match.
+- Vercel deploy: **BLOCKED, not deployed yet.** The Vercel GitHub App
+  installation only covers 3 repos (careercraft, inboxora, syncboard);
+  system-design-studio is not in its list, so the import fails with
+  "To link a GitHub repository, you need to install the GitHub
+  integration first." Granting access needs GitHub sudo-mode
+  verification (emailed code). First code expired before entry; a
+  fresh code was requested but not yet received. Two routes: the user
+  sends the fresh code promptly, or grants access himself in the
+  GitHub app (Settings → Applications → Vercel → Configure).
+- Soft-404 fix attempt: adding a styled `app/not-found.tsx` did NOT
+  change the status (unknown ids still return HTTP 200 on all three
+  routes, though the custom page renders). File reverted; bug remains
+  open — fix before launch, do not guess at `cacheComponents`.
+- `package.json` gained `test` and `typecheck` scripts (README
+  referenced them but they did not exist).
