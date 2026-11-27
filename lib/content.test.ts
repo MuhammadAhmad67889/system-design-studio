@@ -32,8 +32,9 @@ describe('curriculum', () => {
 });
 
 describe('full lessons', () => {
-  it('covers the four specified lessons', () => {
-    expect(Object.keys(fullLessons).sort()).toEqual(['l1', 'l11', 'l2', 'l5']);
+  it('covers all 40 lessons', () => {
+    const expected = Array.from({ length: 40 }, (_, i) => `l${i + 1}`);
+    expect(Object.keys(fullLessons).sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))).toEqual(expected);
   });
 
   it('gives every full lesson at least 4 steps', () => {

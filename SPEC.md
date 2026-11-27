@@ -29,8 +29,10 @@ lib/
   progress.ts           Pure math: progress %, Little's Law, capacity calc
   search.ts             (in content.ts) client-side search index
 data/
-  curriculum.ts         9 chapters, 40 lessons (catalog; 36 coming soon)
+  curriculum.ts         9 chapters, 40 lessons (catalog: titles, intros, objectives)
   lessons-full.ts       4 fully-written lessons (1, 2, 5, 11)
+  lessons-part-a..g.ts  the other 36 fully-written lessons, by chapter group
+  lesson-helpers.ts     shared helpers for writing lessons (metric/node/edge/step)
   cheatsheets.ts        Cheatsheet library
   case-studies.ts       Case studies (URL shortener full)
   quiz.ts               Practice quiz bank

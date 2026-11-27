@@ -29,14 +29,12 @@ Requires Node 20+ and pnpm.
 
 ## What is in this build
 
-- **Learn** — 9 chapters, 40 lessons. Four lessons are fully written
-  with working simulations (Request Lifecycle, Latency & Throughput,
-  Horizontal Scaling, Database Replication). The other 36 are listed
-  with intro and objectives and marked "Coming soon" — they are not
-  presented as finished.
+- **Learn** — 9 chapters, 40 lessons, all fully written with working
+  simulations (guided steps, diagrams, formulas where they fit).
 - **Practice** — quiz runner with hints, explanations and scoring.
 - **Design Lab** — drag-and-drop architecture canvas (React Flow),
-  save/load in the browser, PNG/SVG export.
+  save/load in the browser. (PNG/SVG export is not implemented —
+  React Flow renders nodes as HTML, so an export would miss them.)
 - **Cheatsheets** — searchable reference library.
 - **Case Studies** — full URL shortener walkthrough.
 - **Calculator** — capacity planning with formulas shown.

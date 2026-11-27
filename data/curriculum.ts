@@ -1,10 +1,11 @@
 /*
  * The curriculum catalog: 9 chapters, 40 lessons.
  *
- * Only four lessons carry full step-by-step content in this build
- * (lessons 1, 2, 5 and 11 — see data/lessons-full.ts). The other 36
- * have a title, duration, difficulty, intro and objectives, and are
- * marked comingSoon so the UI never presents a stub as finished.
+ * The catalog holds every lesson's title, duration, difficulty, intro
+ * and objectives. Fully-written lessons live in data/lessons-full.ts
+ * (l1, l2, l5, l11) and data/lessons-part-a.ts through
+ * data/lessons-part-g.ts (the other 36), and are merged over the
+ * catalog in lib/content.ts, which clears the comingSoon flag.
  */
 
 import type { Chapter, Lesson } from '@/lib/types';

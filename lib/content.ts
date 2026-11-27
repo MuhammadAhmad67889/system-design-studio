@@ -18,15 +18,15 @@ export { cheatsheets, caseStudies, quizQuestions };
 /*
  * Chapters with the fully-written lessons merged over the catalog.
  * The catalog marks every lesson comingSoon; the merge clears that
- * flag for the four finished lessons, so sidebars and dashboards
- * never label a finished lesson "Coming soon".
+ * flag for finished lessons, so sidebars and dashboards never label
+ * a finished lesson "Coming soon". All 40 lessons are complete.
  */
 export const chapters: Chapter[] = catalogChapters.map((chapter) => ({
   ...chapter,
   lessons: chapter.lessons.map((lesson) => fullLessons[lesson.id] ?? lesson),
 }));
 
-/** All lessons, with the four fully-written lessons merged over the catalog. */
+/** All lessons, with the fully-written lessons merged over the catalog. */
 export const allLessons: Lesson[] = chapters.flatMap((c) => c.lessons);
 
 export function getAllLessons(): Lesson[] {

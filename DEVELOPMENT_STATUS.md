@@ -30,9 +30,13 @@ from memory.
 - [x] Phase 4 — Core lessons with full content: l1 Request Lifecycle
       (6 steps), l2 Latency & Throughput (5 steps, Little's Law),
       l5 Vertical vs Horizontal Scaling (6 steps, 1→3 servers),
-      l11 Database Replication (6 steps, lag + failover). The other
-      36 lessons are listed with intro + objectives and marked
-      "Coming soon" — never presented as finished.
+      l11 Database Replication (6 steps, lag + failover).
+- [x] Phase 5 — Full curriculum: the remaining 36 lessons written in
+      full (data/lessons-part-a.ts through data/lessons-part-g.ts),
+      so all 40 lessons are complete with steps, diagrams, formulas
+      where they fit, and summaries. Zero lessons marked "Coming soon".
+      One defect found and fixed in integration: l35 step 5 referenced
+      a node id that did not exist in its diagram.
 - [x] Practice landing + 10-question quiz runner (hints, explanations,
       scoring, results, best-score saved).
 - [x] Cheatsheets landing + 4 real cheatsheets (Networking, Caching,
@@ -52,7 +56,6 @@ from memory.
 
 ## Pending (later phases — NOT in this build)
 
-- [ ] Phase 5 — remaining 36 lessons with full content.
 - [ ] Phase 6 — full practice bank + interview challenges.
 - [ ] Phase 8 (rest) — more case studies.
 - [ ] Phase 9 — Supabase: auth, synced progress, saved projects.
@@ -78,6 +81,8 @@ from memory.
       /practice/quiz, /design-lab, /cheatsheets,
       /cheatsheets/caching-patterns, /case-studies,
       /case-studies/url-shortener, /calculator, /search?q=cache.
+      (Before the curriculum completion; see the 2026-11-27 evening
+      run log entry for the all-40-lessons check.)
       KNOWN BUG (parent-verified 2026-11-27): unknown ids on /learn,
       /cheatsheets, /case-studies show the not-found page but return HTTP
       200 instead of 404 (soft 404 — likely the cacheComponents setting in
@@ -130,6 +135,20 @@ from memory.
   lint fix, merged-chapters fix (finished lessons were wrongly
   labelled "Coming soon" in sidebars), SVG `height="auto"` console
   error fix, diagram sublabel overflow fix.
+- 2026-11-27 evening: full curriculum completed. The 36 stub lessons
+  were written in full by 7 parallel writers (one file per chapter
+  group, data/lessons-part-a.ts through data/lessons-part-g.ts, plus
+  shared helpers in data/lesson-helpers.ts), merged into
+  data/lessons-full.ts. Integration found and fixed one defect:
+  l35 step 5 referenced a node id ('deploy') that did not exist in
+  its diagram (node renamed to match). Content test updated to expect
+  all 40 lessons. Verified: typecheck clean, lint clean, Vitest
+  45/45 pass, production build pass (all 40 lesson routes
+  prerendered), prod-server curls 200 on all 40 lesson pages with
+  real step content and zero "Coming soon", spot-checked l6, l17,
+  l26, l37, l40 rendering SVG diagrams (27–30 svg tags each) with
+  the expected key terms. Pushed to main; Vercel auto-deploy
+  verified live (see Deployment status).
 
 ## Deployment status (2026-11-27 evening)
 
