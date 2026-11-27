@@ -188,3 +188,102 @@ export interface DesignProject {
   nodes: { id: string; kind: NodeKind; label: string; x: number; y: number; data: LabNodeData }[];
   edges: { id: string; source: string; target: string; label?: string }[];
 }
+
+/*
+ * Guided labs: one hands-on exercise per chapter. A lab is data —
+ * steps the learner follows on the Design Lab canvas, a starter
+ * template that loads onto the canvas, checks that read the canvas,
+ * and a solution template the learner can reveal and load.
+ */
+
+/** One node in a lab template (starter or solution). Flow coordinates. */
+export interface LabTemplateNode {
+  id: string;
+  kind: NodeKind;
+  label: string;
+  x: number;
+  y: number;
+  description?: string;
+  capacity?: string;
+}
+
+export interface LabTemplateEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+/** Nodes and edges a lab loads onto the canvas. */
+export interface LabTemplate {
+  nodes: LabTemplateNode[];
+  edges: LabTemplateEdge[];
+}
+
+/**
+ * One check on the learner's canvas. Auto checks are evaluated by
+ * `evaluateLabCheck` in lib/labs.ts; a `self` check is a checklist
+ * item the learner ticks themselves and is always labelled as such
+ * in the UI — it never pretends to verify anything.
+ */
+export type LabCheck =
+  | {
+      id: string;
+      kind: 'has-node';
+      nodeKind: NodeKind;
+      minCount: number;
+      /** Optional label substring the node must carry, e.g. 'Metrics'. */
+      label?: string;
+      text: string;
+    }
+  | {
+      id: string;
+      kind: 'has-edge';
+      fromKind: NodeKind;
+      toKind: NodeKind;
+      text: string;
+    }
+  | {
+      id: string;
+      kind: 'has-path';
+      fromKind: NodeKind;
+      toKind: NodeKind;
+      text: string;
+    }
+  | {
+      id: string;
+      kind: 'no-direct-edge';
+      fromKind: NodeKind;
+      toKind: NodeKind;
+      text: string;
+    }
+  | { id: string; kind: 'self'; text: string };
+
+/** One numbered step inside a lab. Plain language, one job per step. */
+export interface LabStep {
+  id: string;
+  title: string;
+  instruction: string;
+  hint: string;
+  /** Palette item id to point the learner at, e.g. 'lb'. */
+  paletteItemId?: string;
+}
+
+export interface Lab {
+  id: string;
+  chapterId: string;
+  number: number;
+  title: string;
+  goal: string;
+  whyItMatters: string;
+  difficulty: Difficulty;
+  estMin: number;
+  steps: LabStep[];
+  starter: LabTemplate;
+  checks: LabCheck[];
+  solution: {
+    title: string;
+    explanation: string;
+    template: LabTemplate;
+  };
+  relatedLessons: string[];
+}
