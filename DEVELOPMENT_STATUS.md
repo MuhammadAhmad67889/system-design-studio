@@ -174,3 +174,32 @@ from memory.
   open — fix before launch, do not guess at `cacheComponents`.
 - `package.json` gained `test` and `typecheck` scripts (README
   referenced them but they did not exist).
+
+## Guided labs (built 2026-11-27 evening, NOT yet pushed)
+
+- 9 guided labs, one per chapter, in plain language with a goal,
+  4–5 steps + hints, a starter template that loads onto the Design Lab
+  canvas, checks, and a revealable/loadable solution:
+  1 Trace a Request (Foundations, 15 min), 2 Survive a Traffic Spike
+  (Scaling, 20 min), 3 Make Reads Fast (Data & Storage, 25 min),
+  4 Decouple with a Queue (Communication, 20 min), 5 Break It on
+  Purpose (Reliability, 20 min), 6 Split the Monolith (Architecture,
+  25 min), 7 Lock the Front Door (Security, 20 min), 8 Ship It and
+  Watch It (Shipping, 15 min), 9 Design a URL Shortener (Whole
+  Systems, 30 min).
+- Checks read the real canvas state (`lib/labs.ts`: has-node, has-edge,
+  has-path, no-direct-edge) plus self-checks labelled as such. Tests
+  enforce that every auto check fails on the starter and passes on the
+  solution. `/labs` listing + `/labs/[id]` runner reuse the Design Lab
+  canvas; progress persists in the existing Zustand store
+  (`sds-progress-v1`); Labs linked from TopNav, MobileDrawer, home.
+- Parent-verified locally: typecheck clean, lint clean, Vitest 63/63
+  (was 45), prod build passes, `/labs` + all 9 lab routes prerendered
+  and 200 on the prod server, Playwright spot-checks (checks flip on a
+  real drag, solution loads, step persistence across reload).
+- PUSH BLOCKED 2026-11-27 ~23:37 PKT: the connector push-files
+  approval card timed out before it was tapped; nothing pushed, main
+  still at 7f438853. Retry needs the user to say "try again" and tap
+  the card promptly. Two batches ready: A (lab data, checker, tests),
+  B (listing + runner UI). After the push: wait for Vercel auto-deploy,
+  verify /labs + lab pages live, re-check the soft-404 status.
