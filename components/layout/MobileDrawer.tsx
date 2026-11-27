@@ -13,6 +13,7 @@ import type { ChapterColor } from '@/lib/types';
 const NAV_LINKS = [
   { href: '/learn', label: 'Learn' },
   { href: '/practice', label: 'Practice' },
+  { href: '/labs', label: 'Labs' },
   { href: '/design-lab', label: 'Design Lab' },
   { href: '/cheatsheets', label: 'Cheatsheets' },
 ];

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Check, Clock, FlaskConical, Play } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, Clock, FlaskConical, Play, Wrench } from 'lucide-react';
 import { chapters, getAllLessons, TOTAL_LESSONS } from '@/lib/content';
 import { nextLesson, percentComplete } from '@/lib/progress';
 import { useProgressStore } from '@/store/progress-store';
@@ -211,6 +211,28 @@ export default function Home() {
           </div>
           <Button href="/practice" variant="secondary" className="shrink-0">
             Practice quizzes
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Button>
+        </Card>
+      </section>
+
+      {/* Guided labs */}
+      <section className="mt-4">
+        <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3">
+            <span className="rounded-xl border-[1.5px] border-line bg-amber p-2.5" aria-hidden>
+              <Wrench className="h-5 w-5 text-ink" />
+            </span>
+            <div>
+              <h2 className="text-lg font-bold">Build it yourself</h2>
+              <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted">
+                Nine guided hands-on exercises, one per chapter — build the
+                system on the canvas, step by step.
+              </p>
+            </div>
+          </div>
+          <Button href="/labs" variant="secondary" className="shrink-0">
+            Browse labs
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Button>
         </Card>
