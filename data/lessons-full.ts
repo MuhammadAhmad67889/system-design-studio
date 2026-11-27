@@ -1,14 +1,23 @@
 /*
- * Fully-written lessons. Only four lessons carry complete content in
- * this build (l1 How a Request Travels, l2 Latency & Throughput,
- * l5 Vertical vs Horizontal Scaling, l11 Database Replication).
- * The other 36 lessons live in data/curriculum.ts as coming-soon entries.
+ * Fully-written lessons. The first four lessons (l1 How a Request
+ * Travels, l2 Latency & Throughput, l5 Vertical vs Horizontal
+ * Scaling, l11 Database Replication) are written in this file.
+ * The remaining 36 lessons live in data/lessons-part-a.ts through
+ * data/lessons-part-g.ts and are merged into `fullLessons` below,
+ * so the whole 40-lesson curriculum is complete.
  *
  * All metric values in these lessons are illustrative: small, plausible
  * numbers chosen to show a trend, not measurements from a real system.
  */
 
 import type { DiagramEdge, DiagramNode, Lesson, LessonStep, NodeKind, SimMetric } from '@/lib/types';
+import { lessonsPartA } from '@/data/lessons-part-a';
+import { lessonsPartB } from '@/data/lessons-part-b';
+import { lessonsPartC } from '@/data/lessons-part-c';
+import { lessonsPartD } from '@/data/lessons-part-d';
+import { lessonsPartE } from '@/data/lessons-part-e';
+import { lessonsPartF } from '@/data/lessons-part-f';
+import { lessonsPartG } from '@/data/lessons-part-g';
 
 function metric(label: string, value: string, unit?: string, tone?: SimMetric['tone']): SimMetric {
   return { label, value, unit, tone };
@@ -46,6 +55,13 @@ const ILLUSTRATIVE =
   'All metric values in this lesson are illustrative — small, plausible numbers chosen to show how a system behaves, not measurements from a real deployment.';
 
 export const fullLessons: Record<string, Lesson> = {
+  ...lessonsPartA,
+  ...lessonsPartB,
+  ...lessonsPartC,
+  ...lessonsPartD,
+  ...lessonsPartE,
+  ...lessonsPartF,
+  ...lessonsPartG,
   l1: {
     id: 'l1',
     chapterId: 'foundations',
