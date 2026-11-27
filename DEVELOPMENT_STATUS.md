@@ -197,9 +197,11 @@ from memory.
   (was 45), prod build passes, `/labs` + all 9 lab routes prerendered
   and 200 on the prod server, Playwright spot-checks (checks flip on a
   real drag, solution loads, step persistence across reload).
-- PUSH BLOCKED 2026-11-27 ~23:37 PKT: the connector push-files
-  approval card timed out before it was tapped; nothing pushed, main
-  still at 7f438853. Retry needs the user to say "try again" and tap
-  the card promptly. Two batches ready: A (lab data, checker, tests),
-  B (listing + runner UI). After the push: wait for Vercel auto-deploy,
-  verify /labs + lab pages live, re-check the soft-404 status.
+- PUSHED + LIVE 2026-11-27 ~23:55 PKT (user said "Do it"; three
+  connector pushes, all approved promptly): batch A 4f80b3cb (lab data,
+  checker, tests), batch B 18d2666f (listing + runner UI), status doc
+  8d055785. New main head: 8d055785. Parent-verified live: /labs +
+  all 9 lab pages 200, listing shows all 9 lab links, lab-1 "Trace a
+  Request" and lab-9 "URL Shortener" render; soft-404 still proper
+  404 on all three unknown-id routes after the labs deploy; lessons +
+  Design Lab still 200 (no regression).
