@@ -205,3 +205,46 @@ from memory.
   Request" and lab-9 "URL Shortener" render; soft-404 still proper
   404 on all three unknown-id routes after the labs deploy; lessons +
   Design Lab still 200 (no regression).
+
+## Simulation readability redesign — PUSHED + LIVE 2026-11-28
+
+- What changed: lesson simulation nodes 150x100 (was ~116x58), labels
+  14px wrapped over two lines (no textLength squish), sublabels 12px,
+  edge labels with halo, MetricStrip wrap fix, permanent geometry guard
+  over all 211 diagrams (lib/diagram-geometry.test.ts). Theme-aware
+  canvas colours; node text stays dark on the fixed light pastel fills.
+- Parent-verified locally: typecheck clean, lint clean, Vitest 69/69,
+  prod build passes; dark theme readable at 390px; on phones the
+  diagram renders at full size inside a horizontal scroll container
+  (right-hand servers need a swipe, text stays legible).
+- PUSHED 2026-11-28 ~09:16 PKT on the user's yes: commit 92561270
+  (DiagramCanvas.tsx, DiagramCanvas.test.tsx, MetricStrip.tsx,
+  lib/types.ts, lib/diagram-geometry.test.ts), all five files
+  byte-verified on main. Live confirmed 09:44 PKT: the served
+  /learn/l6 JavaScript contains the redesign's min-w-[600px] scroll
+  container and no textLength. New main head: 92561270.
+
+## Hands-on lab canvas fix — BUILT, awaiting push (2026-11-28)
+
+- Problem (user's phone screenshot): the lab canvas looked blank. The
+  starter nodes always loaded — the bug was the initial zoom: fitView
+  shrank the whole template to zoom 0.4-0.46 on a phone, so nodes
+  rendered ~72-83px wide in a big empty dotted canvas.
+- Fix: lib/lab-viewport.ts helper — a wide canvas fits everything, a
+  narrow canvas opens at zoom 1 centred on the first node (swipe to
+  the rest; Fit view is the overview); MiniMap hidden below the sm
+  breakpoint; mobile canvas height 480px -> 400px. Lab content, steps,
+  checks and solutions untouched.
+- Parent-verified locally: typecheck + lint clean, Vitest 77/77 (69 +
+  8 new), prod build passes; all 9 labs at 390px render nodes
+  180x66px with 0 console errors; drag-to-connect, Load starter and
+  Fit view verified on lab-1; desktop Design Lab still fits (0.83,
+  all 5 nodes + 4 edges).
+- PUSHED 2026-11-28 ~09:44 PKT on the user's "Push": commit 3792e826
+  (lib/lab-viewport.ts, lib/lab-viewport.test.ts, LabCanvas.tsx,
+  LabRunner.tsx). Live confirmed ~09:49 PKT: the served /labs/lab-1
+  renders the Users node ~160-175px wide with readable text; App
+  Server peeks in from the right edge on phones, minimap hidden
+  below sm. New main head: 3792e826. (GitHub byte-verification and
+  the snapshot sync record are still pending — the API rate limit
+  was hit repeatedly that morning.)
