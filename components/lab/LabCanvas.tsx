@@ -10,7 +10,7 @@
  * status dot with a text label — status is never shown by color alone.
  */
 
-import { useCallback, type DragEvent, type MutableRefObject } from 'react';
+import { useCallback, useRef, type DragEvent, type MutableRefObject } from 'react';
 import {
   Background,
   BackgroundVariant,
@@ -32,6 +32,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/style.css';
 import type { LabNodeData, NodeStatus } from '@/lib/types';
+import { LAB_NODE_HEIGHT, LAB_NODE_WIDTH, initialLabViewport } from '@/lib/lab-viewport';
 import { findPaletteItem, lookUpNode, type PaletteItem } from './LabPalette';
 
 export type LabFlowNodeData = LabNodeData & { [key: string]: unknown };
@@ -126,6 +127,9 @@ export default function LabCanvas({
   fitViewRef,
 }: LabCanvasProps) {
   const { screenToFlowPosition } = useReactFlow();
+  // Measures the canvas so the initial viewport can tell a phone
+  // (narrow, zoom in) from a desktop (wide, fit everything).
+  const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const onDragOver = useCallback((event: DragEvent) => {
     event.preventDefault();
@@ -145,45 +149,69 @@ export default function LabCanvas({
   );
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-      onSelectionChange={onSelectionChange}
-      onNodeDragStart={onNodeDragStart}
-      onNodeDragStop={onNodeDragStop}
-      onInit={(instance) => {
-        fitViewRef.current = () => {
-          void instance.fitView({ padding: 0.2 });
-        };
-      }}
-      // React Flow v13 has no colorMode prop: its stylesheet follows
-      // the `.dark` class on <html>, which the theme provider sets.
-      fitView
-      snapToGrid
-      snapGrid={[16, 16]}
-      deleteKeyCode="Backspace"
-      minZoom={0.4}
-      maxZoom={2}
-      aria-label="Design Lab canvas"
-    >
-      <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-      <Controls />
-      <MiniMap
-        pannable
-        zoomable
-        nodeColor={(node) => {
-          const data = node.data as LabFlowNodeData | undefined;
-          const look = data ? lookUpNode(data.label, data.kind) : undefined;
-          return MINIMAP_COLORS[look?.tint ?? 'bg-surface'] ?? '#fcf9f1';
+    <div ref={wrapRef} className="h-full w-full">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onSelectionChange={onSelectionChange}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDragStop={onNodeDragStop}
+        onInit={(instance) => {
+          fitViewRef.current = () => {
+            void instance.fitView({ padding: 0.2 });
+          };
+          // Wide canvas: fit the whole template. Narrow canvas: start
+          // zoomed in on the first node instead of shrinking it.
+          const wrap = wrapRef.current;
+          const boxes = nodes.map((node) => ({
+            x: node.position.x,
+            y: node.position.y,
+            width: LAB_NODE_WIDTH,
+            height: LAB_NODE_HEIGHT,
+          }));
+          const initial = initialLabViewport({
+            width: wrap?.clientWidth ?? 0,
+            height: wrap?.clientHeight ?? 0,
+            nodes: boxes,
+          });
+          if (initial.kind === 'viewport') {
+            instance.setViewport({ x: initial.x, y: initial.y, zoom: initial.zoom });
+          } else {
+            void instance.fitView({ padding: 0.2 });
+          }
         }}
-      />
-    </ReactFlow>
+        // React Flow v13 has no colorMode prop: its stylesheet follows
+        // the `.dark` class on <html>, which the theme provider sets.
+        snapToGrid
+        snapGrid={[16, 16]}
+        deleteKeyCode="Backspace"
+        minZoom={0.4}
+        maxZoom={2}
+        aria-label="Design Lab canvas"
+      >
+        <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+        <Controls />
+        {/* The minimap duplicates the Fit view button on a phone and
+            covers canvas space, so it only shows from sm up. */}
+        <div className="hidden sm:block">
+          <MiniMap
+            pannable
+            zoomable
+            nodeColor={(node) => {
+              const data = node.data as LabFlowNodeData | undefined;
+              const look = data ? lookUpNode(data.label, data.kind) : undefined;
+              return MINIMAP_COLORS[look?.tint ?? 'bg-surface'] ?? '#fcf9f1';
+            }}
+          />
+        </div>
+      </ReactFlow>
+    </div>
   );
 }

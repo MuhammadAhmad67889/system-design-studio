@@ -621,7 +621,7 @@ function LabRunnerInner({ lab }: { lab: Lab }) {
           <div className="mt-4 flex flex-col overflow-hidden rounded-xl border-[1.5px] border-line lg:flex-row">
             <LabPalette onAddNode={(item) => addNode(item)} />
             <div
-              className={`lab-flow relative h-[480px] min-h-[420px] shrink-0 lg:h-[560px] lg:flex-1 ${playing ? '' : 'sim-paused'}`}
+              className={`lab-flow relative h-[400px] shrink-0 lg:h-[560px] lg:flex-1 ${playing ? '' : 'sim-paused'}`}
             >
               {/* Traffic rate drives how fast the edge dashes travel. */}
               <style>{`.lab-flow .sim-flow-line { animation-duration: ${RATE_DURATIONS[trafficRate]}s; }`}</style>
