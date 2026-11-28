@@ -35,7 +35,7 @@ export function MetricStrip({ metrics }: { metrics: SimMetric[] }) {
             className={`rounded-lg border p-3 ${TONE_CLASS[tone]}`}
           >
             <dt className="text-xs text-muted">{metric.label}</dt>
-            <dd className="mt-1 font-display text-lg font-bold text-ink">
+            <dd className="mt-1 font-display text-base font-bold leading-snug break-words text-ink sm:text-lg">
               {metric.value}
               {metric.unit ? <span className="ml-1 text-sm font-normal text-muted">{metric.unit}</span> : null}
             </dd>

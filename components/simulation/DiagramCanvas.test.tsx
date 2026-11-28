@@ -9,8 +9,8 @@ afterEach(cleanup);
 const diagram: DiagramConfig = {
   nodes: [
     { id: 'user', kind: 'user', label: 'User', sublabel: 'Browser', x: 20, y: 150 },
-    { id: 'server', kind: 'server', label: 'Web Server', sublabel: 'Node.js', x: 300, y: 150 },
-    { id: 'db', kind: 'db', label: 'Database', sublabel: 'Postgres', x: 580, y: 150, status: 'healthy' },
+    { id: 'server', kind: 'server', label: 'Web Server', sublabel: 'Node.js', x: 280, y: 150 },
+    { id: 'db', kind: 'db', label: 'Database', sublabel: 'Postgres', x: 520, y: 150, status: 'healthy' },
   ],
   edges: [
     { from: 'user', to: 'server', label: 'GET /' },
@@ -62,5 +62,44 @@ describe('DiagramCanvas', () => {
     };
     render(<DiagramCanvas diagram={failing} playing={false} />);
     expect(screen.getByText('Failed')).toBeTruthy();
+  });
+
+  it('never squishes text with a textLength attribute', () => {
+    const { container } = render(<DiagramCanvas diagram={diagram} playing={false} />);
+    expect(container.querySelectorAll('text[textLength]').length).toBe(0);
+  });
+
+  it('wraps a long label onto two lines instead of squeezing it', () => {
+    const wrapping: DiagramConfig = {
+      nodes: [
+        { id: 'replica', kind: 'db', label: 'Replica → Primary', x: 20, y: 150 },
+        { id: 'kv', kind: 'db', label: 'Key-Value Store', x: 280, y: 150 },
+      ],
+      edges: [],
+      caption: 'Wrapping check.',
+    };
+    render(<DiagramCanvas diagram={wrapping} playing={false} />);
+    // "Replica → Primary" is 148px at 14px bold in a 134px inner width,
+    // so it wraps; "Key-Value Store" is 130px and stays on one line.
+    expect(screen.getByText('Replica →')).toBeTruthy();
+    expect(screen.getByText('Primary')).toBeTruthy();
+    expect(screen.getByText('Key-Value Store')).toBeTruthy();
+  });
+
+  it('keeps every node rect inside the 720x400 viewBox', () => {
+    const { container } = render(<DiagramCanvas diagram={diagram} playing={false} />);
+    // Node boxes are exactly 150x100; the active-node halo is 158x108.
+    const nodeRects = [...container.querySelectorAll('rect')].filter(
+      (rect) => rect.getAttribute('width') === '150' && rect.getAttribute('height') === '100',
+    );
+    expect(nodeRects.length).toBe(diagram.nodes.length);
+    for (const rect of nodeRects) {
+      const x = Number(rect.getAttribute('x'));
+      const y = Number(rect.getAttribute('y'));
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(x + 150).toBeLessThanOrEqual(720);
+      expect(y + 100).toBeLessThanOrEqual(400);
+    }
   });
 });

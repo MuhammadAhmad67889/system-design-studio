@@ -34,7 +34,7 @@ export type NodeKind =
 
 export type NodeStatus = 'healthy' | 'busy' | 'degraded' | 'failed' | 'idle';
 
-/** One box in a simulation diagram. Positions are in a 720x360 viewBox. */
+/** One box in a simulation diagram. Positions are in a 720x400 viewBox. */
 export interface DiagramNode {
   id: string;
   kind: NodeKind;

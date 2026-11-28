@@ -3,7 +3,7 @@
 /*
  * DiagramCanvas renders one simulation step as an SVG diagram.
  *
- * Nodes are fixed-size boxes (116x58) placed on a 720x360 viewBox.
+ * Nodes are fixed-size boxes (150x100) placed on a 720x400 viewBox.
  * Edges run from the boundary of one node to the boundary of the next,
  * so the line never hides under a box. Active edges also carry a
  * particle that travels from the centre of one node to the centre of
@@ -31,8 +31,8 @@ import {
 } from 'lucide-react';
 import type { DiagramConfig, DiagramEdge, DiagramNode, NodeKind, NodeStatus } from '@/lib/types';
 
-const NODE_WIDTH = 116;
-const NODE_HEIGHT = 58;
+const NODE_WIDTH = 150;
+const NODE_HEIGHT = 100;
 const HALF_WIDTH = NODE_WIDTH / 2;
 const HALF_HEIGHT = NODE_HEIGHT / 2;
 
@@ -74,6 +74,18 @@ const STATUS_FILL: Record<NodeStatus, string> = {
   idle: '#756F65',
 };
 
+// Ink, muted and paper come from the theme tokens in globals.css,
+// so the lines and labels drawn on the page background follow the
+// light/dark theme. In the light theme these are exactly #242323,
+// #756F65 and #FCF9F1, so the light look is unchanged; in the dark
+// theme they become the light ink, muted and surface colours
+// instead of dark-on-dark.
+// Node text and icons are the exception: they sit on the fixed
+// light pastel fills, so they stay #242323 in both themes.
+const INK = 'var(--ink)';
+const MUTED = 'var(--muted)';
+const PAPER = 'var(--surface)';
+
 const STATUS_LABEL: Record<NodeStatus, string> = {
   healthy: 'Healthy',
   busy: 'Busy',
@@ -81,6 +93,46 @@ const STATUS_LABEL: Record<NodeStatus, string> = {
   failed: 'Failed',
   idle: 'Idle',
 };
+
+// Conservative per-character widths for Inter, as a fraction of the
+// font size. The wrap below deliberately overestimates, so a line the
+// helper says fits always fits on screen.
+const BOLD_CHAR_WIDTH = 0.62;
+const REGULAR_CHAR_WIDTH = 0.55;
+
+/**
+ * Greedy word wrap, capped at two lines. SVG <text> never wraps on
+ * its own, so without this a long label would spill out of its box.
+ * A single word wider than the box is split mid-word across lines
+ * rather than allowed to stick out.
+ */
+function wrapText(text: string, fontSize: number, bold: boolean, maxWidth: number): string[] {
+  const charWidth = (bold ? BOLD_CHAR_WIDTH : REGULAR_CHAR_WIDTH) * fontSize;
+  const maxChars = Math.max(1, Math.floor(maxWidth / charWidth));
+  // Break overlong words into fitting chunks first, so every piece
+  // the packer sees already fits on one line.
+  const pieces = text.split(' ').flatMap((word) => {
+    if (word.length <= maxChars) return [word];
+    const chunks: string[] = [];
+    for (let i = 0; i < word.length; i += maxChars) {
+      chunks.push(word.slice(i, i + maxChars));
+    }
+    return chunks;
+  });
+  const lines: string[] = [];
+  let line = '';
+  for (const piece of pieces) {
+    const next = line ? `${line} ${piece}` : piece;
+    if (next.length <= maxChars) {
+      line = next;
+    } else {
+      if (line) lines.push(line);
+      line = piece;
+    }
+  }
+  if (line) lines.push(line);
+  return lines.slice(0, 2);
+}
 
 function nodeCenter(node: DiagramNode): { x: number; y: number } {
   return { x: node.x + HALF_WIDTH, y: node.y + HALF_HEIGHT };
@@ -103,6 +155,18 @@ function boundaryPoint(from: DiagramNode, to: DiagramNode): { x: number; y: numb
 
 function edgeId(edge: DiagramEdge): string {
   return `${edge.from}->${edge.to}`;
+}
+
+/**
+ * Midpoint of an edge, where its label sits (slightly above the line).
+ * Edge labels are painted after the nodes (see below), so a label
+ * wider than the gap between two boxes stays readable over the box
+ * edges instead of hiding underneath them.
+ */
+function edgeLabelPosition(from: DiagramNode, to: DiagramNode): { x: number; y: number } {
+  const start = boundaryPoint(from, to);
+  const end = boundaryPoint(to, from);
+  return { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 - 6 };
 }
 
 interface DiagramCanvasProps {
@@ -135,13 +199,14 @@ export function DiagramCanvas({ diagram, playing }: DiagramCanvasProps) {
 
   return (
     <figure className="w-full">
-      <svg
-        ref={svgRef}
-        viewBox="0 0 720 360"
-        role="img"
-        aria-label={diagram.caption}
-        className="block h-auto w-full rounded-lg border border-line bg-raised"
-      >
+      <div className="overflow-x-auto">
+        <svg
+          ref={svgRef}
+          viewBox="0 0 720 400"
+          role="img"
+          aria-label={diagram.caption}
+          className="block h-auto w-full min-w-[600px] rounded-lg border border-line bg-raised"
+        >
         <defs>
           <marker
             id="sim-arrow"
@@ -152,7 +217,7 @@ export function DiagramCanvas({ diagram, playing }: DiagramCanvasProps) {
             markerHeight="7"
             orient="auto-start-reverse"
           >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#242323" />
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={INK} />
           </marker>
         </defs>
 
@@ -165,8 +230,6 @@ export function DiagramCanvas({ diagram, playing }: DiagramCanvasProps) {
           const end = boundaryPoint(to, from);
           const fromCenter = nodeCenter(from);
           const toCenter = nodeCenter(to);
-          const midX = (start.x + end.x) / 2;
-          const midY = (start.y + end.y) / 2;
           return (
             <g key={edgeId(edge)}>
               <line
@@ -174,22 +237,11 @@ export function DiagramCanvas({ diagram, playing }: DiagramCanvasProps) {
                 y1={start.y}
                 x2={end.x}
                 y2={end.y}
-                stroke="#242323"
+                stroke={INK}
                 strokeWidth={isActive ? 2 : 1.5}
                 markerEnd="url(#sim-arrow)"
                 className={isActive ? 'sim-flow-line' : undefined}
               />
-              {edge.label ? (
-                <text
-                  x={midX}
-                  y={midY - 6}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#756F65"
-                >
-                  {edge.label}
-                </text>
-              ) : null}
               {isActive ? (
                 <circle r="5" fill="#EBAF49" data-testid="sim-particle">
                   <animateMotion
@@ -208,6 +260,16 @@ export function DiagramCanvas({ diagram, playing }: DiagramCanvasProps) {
           const status = node.status ?? 'healthy';
           const Icon = KIND_ICON[node.kind];
           const showStatusText = status === 'failed' || status === 'degraded';
+          // Label and sublabel share the area below the icon row
+          // (y+30 to y+100) and are centred in it as one block.
+          const labelLines = wrapText(node.label, 14, true, NODE_WIDTH - 16);
+          const subLines = node.sublabel
+            ? wrapText(node.sublabel, 12, false, NODE_WIDTH - 16)
+            : [];
+          const blockHeight =
+            labelLines.length * 17 + (subLines.length ? 4 + subLines.length * 15 : 0);
+          const textTop = 30 + (70 - blockHeight) / 2;
+          const centerX = node.x + NODE_WIDTH / 2;
           return (
             <g key={node.id}>
               {isActive ? (
@@ -228,50 +290,96 @@ export function DiagramCanvas({ diagram, playing }: DiagramCanvasProps) {
                 height={NODE_HEIGHT}
                 rx="10"
                 fill={KIND_FILL[node.kind]}
-                stroke="#242323"
+                stroke={INK}
                 strokeWidth={isActive ? 3 : 1.5}
               />
-              <g transform={`translate(${node.x + 10} ${node.y + 9})`}>
-                <Icon size={18} color="#242323" aria-hidden="true" />
+              <g transform={`translate(${node.x + 9} ${node.y + 9})`}>
+                <Icon size={16} color="#242323" aria-hidden="true" />
               </g>
-              <text x={node.x + 34} y={node.y + 23} fontSize="12" fontWeight="700" fill="#242323">
-                {node.label}
-              </text>
-              {node.sublabel ? (
+              {labelLines.map((line, i) => (
                 <text
-                  x={node.x + 10}
-                  y={node.y + 38}
-                  fontSize="10"
+                  key={`label-${i}`}
+                  x={centerX}
+                  y={node.y + textTop + 11 + i * 17}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fontWeight="700"
+                  fill="#242323"
+                >
+                  {line}
+                </text>
+              ))}
+              {subLines.map((line, j) => (
+                <text
+                  key={`sub-${j}`}
+                  x={centerX}
+                  y={node.y + textTop + labelLines.length * 17 + 4 + 9 + j * 15}
+                  textAnchor="middle"
+                  fontSize="12"
                   fill="#242323"
                   opacity="0.75"
-                  textLength={NODE_WIDTH - 20}
-                  lengthAdjust="spacingAndGlyphs"
                 >
-                  {node.sublabel}
+                  {line}
                 </text>
-              ) : null}
+              ))}
               <circle
-                cx={node.x + 12}
-                cy={node.y + 48}
-                r="4"
+                cx={node.x + 139}
+                cy={node.y + 17}
+                r="4.5"
                 fill={STATUS_FILL[status]}
                 stroke="#242323"
                 strokeWidth="1"
               />
               {showStatusText ? (
-                <text x={node.x + 21} y={node.y + 51} fontSize="9" fontWeight="700" fill="#242323">
+                <text
+                  x={node.x + 129}
+                  y={node.y + 20}
+                  textAnchor="end"
+                  fontSize="9"
+                  fontWeight="700"
+                  fill="#242323"
+                >
                   {STATUS_LABEL[status]}
                 </text>
               ) : null}
               {node.note ? (
-                <text x={node.x + 106} y={node.y + 51} fontSize="9" textAnchor="end" fill="#242323" opacity="0.75">
+                <text x={node.x + 140} y={node.y + 93} fontSize="9" textAnchor="end" fill="#242323" opacity="0.75">
                   {node.note}
                 </text>
               ) : null}
             </g>
           );
         })}
+
+        {/* Edge labels paint last, over the node boxes. A label wider
+          than the gap between two boxes would otherwise hide under
+          them; on top, the paper halo keeps it readable where it
+          crosses a box edge. */}
+        {diagram.edges.map((edge) => {
+          if (!edge.label) return null;
+          const from = nodesById.get(edge.from);
+          const to = nodesById.get(edge.to);
+          if (!from || !to) return null;
+          const { x, y } = edgeLabelPosition(from, to);
+          return (
+            <text
+              key={`label-${edgeId(edge)}`}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              fontSize="11"
+              fill={MUTED}
+              stroke={PAPER}
+              strokeWidth="4"
+              paintOrder="stroke"
+              strokeLinejoin="round"
+            >
+              {edge.label}
+            </text>
+          );
+        })}
       </svg>
+      </div>
       <figcaption className="mt-2 text-sm text-muted">{diagram.caption}</figcaption>
     </figure>
   );
